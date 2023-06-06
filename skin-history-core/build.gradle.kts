@@ -8,8 +8,8 @@ plugins {
 }
 
 dependencies {
-    ksp("com.dzikoysk.sqiffy:sqiffy-symbol-processor:1.0.0-alpha.19")
-    implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.19")
+    ksp("com.dzikoysk.sqiffy:sqiffy-symbol-processor:1.0.0-alpha.20")
+    implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.20")
     api("net.dzikoysk:cdn:1.14.4")
     implementation("net.dzikoysk:cdn-kt:1.14.4")
 

@@ -4,6 +4,7 @@ import dev.rollczi.liteskinhistory.support.SqiffyContainer
 import org.junit.jupiter.api.Test
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import kotlin.test.assertEquals
 
 @Testcontainers
 internal class HistoryServiceIntegrationTest : HistoryServiceTest() {
@@ -37,29 +38,29 @@ abstract class HistoryServiceTest {
         service.createHistory("rollczi", "hirobrine")
         service.createHistory("rollczi", "Alex")
 
-        val (firstPage, total) = service.findHistory("rollczi", 0, 4)
+        val (firstPage, total) = service.findHistory("rollczi", 4, 0)
 
         assert(total == 11L)
-        assert(firstPage.size == 4)
-        assert(firstPage[0].skin == "Alex")
-        assert(firstPage[1].skin == "hirobrine")
-        assert(firstPage[2].skin == "vLucky")
-        assert(firstPage[3].skin == "Jeb")
+        assertEquals(4, firstPage.size)
+        assertEquals("Alex", firstPage[0].skin)
+        assertEquals("hirobrine", firstPage[1].skin)
+        assertEquals("vLucky", firstPage[2].skin)
+        assertEquals("Jeb", firstPage[3].skin)
 
-        val (secondPage, total2) = service.findHistory("rollczi", 1, 4)
+        val (secondPage, total2) = service.findHistory("rollczi", 4, 1)
 
-        assert(total2 == 11L)
-        assert(secondPage.size == 4)
-        assert(secondPage[0].skin == "Mike")
-        assert(secondPage[1].skin == "Crispi")
-        assert(secondPage[2].skin == "skin1")
-        assert(secondPage[3].skin == "skin3")
+        assertEquals(11L, total2)
+        assertEquals(4, secondPage.size)
+        assertEquals("Mike", secondPage[0].skin)
+        assertEquals("Crispi", secondPage[1].skin)
+        assertEquals("skin1", secondPage[2].skin)
+        assertEquals("skin3", secondPage[3].skin)
 
-        val (thirdPage, total3) = service.findHistory("rollczi", 2, 4)
+        val (thirdPage, total3) = service.findHistory("rollczi", 4, 2)
 
-        assert(total3 == 11L)
-        assert(thirdPage.size == 1)
-        assert(thirdPage[0].skin == "skin2")
+        assertEquals(11L, total3)
+        assertEquals(1, thirdPage.size)
+        assertEquals("skin2", thirdPage[0].skin)
     }
 
 }

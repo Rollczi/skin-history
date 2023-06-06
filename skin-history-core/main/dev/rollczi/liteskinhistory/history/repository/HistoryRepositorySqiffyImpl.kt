@@ -18,7 +18,7 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
             SkinHistoryDefinition::class,
         )
 
-        sqiffyDatabase.runMigrations(Migrator.SqiffyMetadataTable(), changeLog)
+        sqiffyDatabase.runMigrations(changeLog)
     }
 
     override fun createHistory(username: String, skinName: String, changedAt: Instant): SkinHistory {
@@ -43,9 +43,9 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
         }.map {
             SkinHistory(
                 id = it[SkinHistoryTable.id],
-                userId = it[SkinHistoryTable.userId],
-                skinId = it[SkinHistoryTable.skinId],
-                changedAt = it[SkinHistoryTable.changedAt]
+                userId = user.id,
+                skinId = skin.id,
+                changedAt = changedAt
             )
         }.first()
     }
@@ -57,6 +57,7 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
             .join(JoinType.INNER, SkinHistoryTable.skinId, SkinTable.id)
             .where { UserTable.name eq username }
             .orderBy(Pair(SkinHistoryTable.changedAt, Order.ASC))
+            .distinct()
             .limit(limit = historyRange.limit(), offset = historyRange.offset())
             .map {
                 SkinHistoryRecord(
