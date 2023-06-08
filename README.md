@@ -11,3 +11,8 @@ Konfiguracja pluginu bukkit znajduje się w pliku `config.yml` w folderze `plugi
 
 #### Komendy
 - `/skin-history` - Wyświetla GUI z historią skinów
+
+#### Testy jednostkowe i integracyjne
+Testy jednostkowe i integracyjne znajdują się w module `skin-history-core` w folderze `test`
+Testy integracyjne wymagają uruchomienia dockera. Polecam zainstalować https://www.docker.com/products/docker-desktop/
+Testują one połączenie i operacje na bazie danych MySQL.
