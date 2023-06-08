@@ -7,8 +7,8 @@ import java.time.Instant
 
 class HistoryService internal constructor(private val repository: HistoryRepository) {
 
-    fun createHistory(username: String, skin: String) {
-        repository.createHistory(username, skin, Instant.now())
+    fun createHistory(username: String, skin: String, skinValue: String, instant: Instant = Instant.now()) {
+        repository.createHistory(username, skin, skinValue, instant)
     }
 
     @Blocking

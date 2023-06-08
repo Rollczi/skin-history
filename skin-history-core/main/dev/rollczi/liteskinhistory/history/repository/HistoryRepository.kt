@@ -6,12 +6,10 @@ import java.time.Instant
 
 internal interface HistoryRepository {
 
-    fun createHistory(username: String, skinName: String, changedAt: Instant): SkinHistory
+    fun createHistory(username: String, skinName: String, skinValue: String, changedAt: Instant): SkinHistory
 
     fun findHistory(username: String, historyRange: HistoryRange): List<SkinHistoryRecord>
 
     fun countHistory(username: String): Long
-
-    fun findSkinById(id: Int): Skin?
 
 }

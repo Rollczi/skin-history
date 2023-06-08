@@ -21,20 +21,38 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
         sqiffyDatabase.runMigrations(changeLog)
     }
 
-    override fun createHistory(username: String, skinName: String, changedAt: Instant): SkinHistory {
-        val skin = sqiffyDatabase.insertIfNotExist(
+    override fun createHistory(username: String, skinName: String, skinValue: String, changedAt: Instant): SkinHistory {
+        val skin = sqiffyDatabase.insertOrUpdate(
             SkinTable,
             where = { SkinTable.name eq skinName },
-            serialize = { it[SkinTable.name] = skinName },
-            deserialize = { Skin(it[SkinTable.id], it[SkinTable.name]) }
+            serialize = {
+                it[SkinTable.name] = skinName
+                it[SkinTable.value] = skinValue
+            },
+            deserialize = {
+                Skin(
+                    it[SkinTable.id],
+                    skinName,
+                    skinValue
+                )
+            }
         )
 
         val user = sqiffyDatabase.insertIfNotExist(
             UserTable,
             where = { UserTable.name eq username },
             serialize = { it[UserTable.name] = username },
-            deserialize = { User(it[UserTable.id], it[UserTable.name]) }
+            deserialize = { User(it[UserTable.id], username) }
         )
+
+        sqiffyDatabase.delete(SkinHistoryTable)
+            .where {
+                and(
+                    SkinHistoryTable.skinId eq skin.id,
+                    SkinHistoryTable.userId eq user.id
+                )
+            }
+            .execute()
 
         return sqiffyDatabase.insert(SkinHistoryTable) {
             it[SkinHistoryTable.userId] = user.id
@@ -56,12 +74,12 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
             .join(JoinType.INNER, SkinHistoryTable.userId, UserTable.id)
             .join(JoinType.INNER, SkinHistoryTable.skinId, SkinTable.id)
             .where { UserTable.name eq username }
-            .orderBy(Pair(SkinHistoryTable.changedAt, Order.ASC))
-            .distinct()
+            .orderBy(Pair(SkinHistoryTable.changedAt, Order.DESC))
             .limit(limit = historyRange.limit(), offset = historyRange.offset())
             .map {
                 SkinHistoryRecord(
                     skin = it[SkinTable.name],
+                    skinValue = it[SkinTable.value],
                     changedAt = it[SkinHistoryTable.changedAt]
                 )
             }
@@ -79,18 +97,6 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
             .first()
     }
 
-    override fun findSkinById(id: Int): Skin? {
-        return sqiffyDatabase.select(SkinTable)
-            .where { SkinTable.id eq id }
-            .map {
-                Skin(
-                    id = it[SkinTable.id],
-                    name = it[SkinTable.name],
-                )
-            }
-            .firstOrNull()
-    }
-
     private fun <TABLE : Table, ENTITY> SqiffyDatabase.insertIfNotExist(
         table: TABLE,
         where: () -> Expression<out Column<*>, Boolean>,
@@ -106,12 +112,31 @@ internal class HistoryRepositorySqiffyImpl(private val sqiffyDatabase: SqiffyDat
             return entity
         }
 
-        insert(table, serialize)
-            .map { true }
+        return insert(table, serialize)
+            .map(deserialize)
             .first()
+    }
 
-        return select(table)
+    private fun <TABLE : Table, ENTITY> SqiffyDatabase.insertOrUpdate(
+        table: TABLE,
+        where: () -> Expression<out Column<*>, Boolean>,
+        serialize: (Values) -> Unit,
+        deserialize: (Row) -> ENTITY,
+    ): ENTITY {
+        val entity: ENTITY? = select(table)
             .where(where)
+            .map(deserialize)
+            .firstOrNull()
+
+        if (entity != null) {
+            update(table, serialize)
+                .where(where)
+                .execute()
+
+            return entity
+        }
+
+        return insert(table, serialize)
             .map(deserialize)
             .first()
     }

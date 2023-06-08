@@ -4,6 +4,7 @@ plugins {
 
     id("com.github.johnrengelman.shadow") version "8.0.0"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.3"
+    id("xyz.jpenilla.run-paper") version "2.1.0"
 }
 
 dependencies {
@@ -17,6 +18,11 @@ dependencies {
     implementation("net.kyori:adventure-text-minimessage:4.13.1")
 }
 
+tasks {
+    runServer {
+        minecraftVersion("1.19.4")
+    }
+}
 
 bukkit {
     main = "dev.rollczi.liteskinhistory.bukkit.LiteSkinHistoryBukkit"
@@ -30,11 +36,7 @@ bukkit {
 tasks.withType<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar> {
     archiveFileName.set("LiteSkinHistory-bukkit v${project.version}.jar")
 
-    mergeServiceFiles()
-    minimize()
-
     exclude(
-        "META-INF/**",
         "org/intellij/**",
         "org/jetbrains/**",
     )

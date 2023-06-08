@@ -1,7 +1,7 @@
 package dev.rollczi.liteskinhistory.bukkit;
 
 import dev.rollczi.liteskinhistory.bukkit.scheduler.Scheduler;
-import dev.rollczi.liteskinhistory.bukkit.skin.SkinMessenger;
+import dev.rollczi.liteskinhistory.bukkit.skinsrestorer.SkinMessenger;
 import dev.rollczi.liteskinhistory.history.HistoryRange;
 import dev.rollczi.liteskinhistory.history.HistoryService;
 import dev.rollczi.liteskinhistory.history.api.SkinHistoryRecord;
@@ -14,6 +14,7 @@ import dev.triumphteam.gui.components.GuiType;
 import dev.triumphteam.gui.guis.Gui;
 import dev.triumphteam.gui.guis.GuiItem;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
@@ -37,13 +38,15 @@ class LiteSkinHistoryGui {
     private final SkullAPI skullAPI;
     private final SkinMessenger skinMessenger;
     private final Config config;
+    private final Server server;
 
-    LiteSkinHistoryGui(HistoryService historyService, Scheduler scheduler, SkullAPI skullAPI, SkinMessenger skinMessenger, Config config) {
+    LiteSkinHistoryGui(HistoryService historyService, Scheduler scheduler, SkullAPI skullAPI, SkinMessenger skinMessenger, Config config, Server server) {
         this.historyService = historyService;
         this.scheduler = scheduler;
         this.skullAPI = skullAPI;
         this.skinMessenger = skinMessenger;
         this.config = config;
+        this.server = server;
     }
 
     void open(Player player) {
@@ -67,57 +70,67 @@ class LiteSkinHistoryGui {
             .disableAllInteractions()
             .create();
 
-        IntStream.range(0, 9).forEach(column -> IntStream.range(0, 6).forEach(row -> {
-            if (row < MIN_ROW || row > MAX_ROW || column < MIN_COLUMN || column > MAX_COLUMN) {
-                gui.setItem(row, column, config.fillItem());
+        // Fill gui with empty items
+        IntStream.range(1, 7).forEach(column -> IntStream.range(1, 10).forEach(row -> {
+            if ((row < MIN_ROW || row > MAX_ROW) || (column < MIN_COLUMN || column > MAX_COLUMN)) {
+                gui.setItem(column, row, config.fillItem());
             }
         }));
 
+        // Fill gui with skulls
         int row = MIN_ROW;
         int column = MIN_COLUMN;
+        int counter = range.offset() + 1;
 
         for (SkinHistoryRecord record : response.getRecords()) {
-            if (column > MAX_COLUMN) {
-                column = MIN_COLUMN;
-                row++;
+            if (row > MAX_ROW) {
+                row = MIN_ROW;
+                column++;
             }
 
-            if (row > MAX_ROW) {
+            if (column > MAX_COLUMN) {
                 break;
             }
 
-            SkullData skullData = skullAPI.awaitSkullData(record.getSkin(), 10, TimeUnit.SECONDS);
-
             gui.setItem(
-                row,
                 column,
+                row,
                 ItemBuilder.skull()
-                    .texture(skullData.getValue())
-                    .texture(skullData.getSignature())
-                    .name(config.skull(record.getSkin(), record.getChangedAt()))
-                    .lore(config.skullLore(record.getSkin(), record.getChangedAt()))
+                    .texture(record.getSkinValue())
+                    .name(config.skull(counter, record.getSkin(), record.getChangedAt()))
+                    .lore(config.skullLore(counter, record.getSkin(), record.getChangedAt()))
                     .asGuiItem(event -> this.setSkin(player, record.getSkin()))
             );
 
-            column++;
+            row++;
+            counter++;
         }
 
+        // Previous button
         if (range.offset() > 0) {
-            gui.setItem(6, 2, config.previousPageItem(event -> this.open(player, range.previousRange())));
+            gui.setItem(6, 3, config.previousPageItem(event -> this.open(player, range.previousRange())));
         }
 
+        // Next button
         if (range.offset() + PAGE_SIZE < response.getTotal()) {
-            gui.setItem(6, 6, config.nextPageItem(event -> this.open(player, range.nextRange())));
+            gui.setItem(6, 7, config.nextPageItem(event -> this.open(player, range.nextRange())));
         }
 
+        // Self skull
         SkullData selfSkullData = skullAPI.awaitSkullData(player.getName(), 10, TimeUnit.SECONDS);
 
-        gui.setItem(6, 4, ItemBuilder.skull()
+        gui.setItem(6, 5, ItemBuilder.skull()
             .texture(selfSkullData.getValue())
             .name(config.skullSelfName(player.getName()))
             .lore(config.skullSelfLore(player.getName()))
             .asGuiItem(event -> this.setSkin(player, player.getName()))
         );
+
+        // Close button
+        gui.setItem(6, 9, config.closeItem(event -> {
+            player.closeInventory();
+            server.dispatchCommand(player, "profil");
+        }));
 
         return gui;
     }
@@ -130,15 +143,17 @@ class LiteSkinHistoryGui {
 
         Component title();
 
-        Component skull(String skin, Instant changedAt);
+        Component skull(int count, String skin, Instant changedAt);
 
-        List<Component> skullLore(String skin, Instant changedAt);
+        List<Component> skullLore(int count, String skin, Instant changedAt);
 
         GuiItem fillItem();
 
         GuiItem previousPageItem(GuiAction<InventoryClickEvent> action);
 
         GuiItem nextPageItem(GuiAction<InventoryClickEvent> action);
+
+        GuiItem closeItem(GuiAction<InventoryClickEvent> action);
 
         Component skullSelfName(String skin);
 

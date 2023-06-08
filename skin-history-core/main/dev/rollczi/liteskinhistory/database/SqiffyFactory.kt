@@ -2,12 +2,13 @@ package dev.rollczi.liteskinhistory.database
 
 import com.dzikoysk.sqiffy.*
 import com.dzikoysk.sqiffy.shared.createHikariDataSource
+import org.slf4j.event.Level
 
 object SqiffyFactory {
 
     fun createSqiffy(sqiffyConfig: SqiffyConfig): SqiffyDatabase {
         return Sqiffy.createDatabase(
-            logger = StdoutSqiffyLogger(),
+            logger = object : SqiffyLogger { override fun log(level: Level, message: String) {} },
             dataSource = createHikariDataSource(
                 driver = sqiffyConfig.driver,
                 url = sqiffyConfig.toUrl(),

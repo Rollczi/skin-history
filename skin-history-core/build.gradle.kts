@@ -11,10 +11,10 @@ dependencies {
     ksp("com.dzikoysk.sqiffy:sqiffy-symbol-processor:1.0.0-alpha.20")
     implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.20")
     api("net.dzikoysk:cdn:1.14.4")
-    implementation("net.dzikoysk:cdn-kt:1.14.4")
 
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("mysql:mysql-connector-java:8.0.33")
+    implementation("org.slf4j:slf4j-simple:2.0.6")
 
     testImplementation("org.testcontainers:mysql:1.18.1")
 }

@@ -10,6 +10,7 @@ import dev.rollczi.liteskinhistory.LiteSkinHistoryVersion
         properties = [
             Property(name = "id", type = DataType.SERIAL),
             Property(name = "name", type = DataType.VARCHAR, details = "16"),
+            Property(name = "value", type = DataType.TEXT),
         ],
         constraints = [
             Constraint(type = ConstraintType.PRIMARY_KEY, name = "pk_skin_id", on = ["id"]),

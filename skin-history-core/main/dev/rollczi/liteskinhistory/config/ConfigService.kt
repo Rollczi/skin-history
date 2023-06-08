@@ -9,7 +9,6 @@ import java.io.File
 class ConfigService(private val dataFolder: File) {
 
     private val cdn: Cdn = CdnFactory.createYamlLike().settings
-        .registerKotlinModule()
         .withMemberResolver(Visibility.PACKAGE_PRIVATE)
         .build()
 
@@ -17,20 +16,17 @@ class ConfigService(private val dataFolder: File) {
 
     fun reloadAll() {
         for (config in configs.values) {
-            load(config)
+            load(config, config.javaClass.resource())
         }
     }
 
-    fun <CONFIG : Any> load(config: CONFIG) {
-        load(config, config.javaClass.resource())
-    }
-
-    inline fun <reified CONFIG : Any> load(): CONFIG {
-        return load(CONFIG::class.java)
-    }
-
     fun <CONFIG : Any> load(clazz: Class<CONFIG>): CONFIG {
-        return cdn.load(clazz.resource(), clazz).orThrow { cause: CdnException -> RuntimeException(cause) }
+        val resource = clazz.resource()
+        val config = cdn.load(resource, clazz).orThrow { cause: CdnException -> RuntimeException(cause) }
+
+        save(config, resource)
+
+        return config
     }
 
     fun <CONFIG : Any> save(config: CONFIG, resource: Resource) {
@@ -42,7 +38,7 @@ class ConfigService(private val dataFolder: File) {
     }
 
     private fun Class<*>.resource(): Resource {
-        return Source.of(dataFolder, javaClass.getAnnotation(ConfigFile::class.java).fileName)
+        return Source.of(dataFolder, this.getDeclaredAnnotation(ConfigFile::class.java).fileName)
     }
 
 }

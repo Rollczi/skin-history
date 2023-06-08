@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TextReplacementConfig;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 
 import java.util.function.BiFunction;
@@ -13,7 +14,7 @@ import java.util.regex.Pattern;
 
 public class LegacyColorProcessor implements UnaryOperator<Component> {
 
-    private static final Pattern LEGACY_PATTERN = Pattern.compile("(?i)&([0-9A-FK-ORX])");
+    private static final Pattern LEGACY_PATTERN = Pattern.compile(".*");
     private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer.builder()
             .character('&')
             .hexColors()
@@ -25,6 +26,10 @@ public class LegacyColorProcessor implements UnaryOperator<Component> {
             .replacement(new LegacyReplace())
             .build();
 
+    private static final Component RESET_ITALIC = Component.empty()
+        .decoration(TextDecoration.ITALIC, false);
+
+
     @Override
     public Component apply(Component component) {
         return component.replaceText(REPLACEMENT_CONFIG);
@@ -34,7 +39,7 @@ public class LegacyColorProcessor implements UnaryOperator<Component> {
 
         @Override
         public ComponentLike apply(MatchResult match, TextComponent.Builder builder) {
-            return LEGACY_SERIALIZER.deserialize(match.group());
+            return RESET_ITALIC.append(LEGACY_SERIALIZER.deserialize(match.group()));
         }
 
     }

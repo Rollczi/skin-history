@@ -1,4 +1,4 @@
-package dev.rollczi.liteskinhistory.bukkit.skin;
+package dev.rollczi.liteskinhistory.bukkit.skinsrestorer;
 
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;

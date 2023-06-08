@@ -13,7 +13,10 @@ import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 @ConfigFile(fileName = "config.yml")
 class LiteSkinHistoryConfig implements LiteSkinHistoryGui.Config {
@@ -24,14 +27,16 @@ class LiteSkinHistoryConfig implements LiteSkinHistoryGui.Config {
             .build();
 
     String title = "&aSkin History";
-    String skullName = "{skin}";
+    String skullName = "Your skin #{count} {skin}";
     List<String> skullLore = List.of("&7Changed at: &f{changedAt}");
     String skullSelfName = "&a{skin}";
     List<String> skullSelfLore = List.of("&7Clear your skin!");
+    String datePattern = "yyyy-MM-dd HH:mm:ss";
 
     ItemConfig fillItem = new ItemConfig();
     ItemConfig previousPageItem = new ItemConfig(Material.ARROW, "&aPrevious page", List.of());
     ItemConfig nextPageItem = new ItemConfig(Material.ARROW, "&aNext page", List.of());
+    ItemConfig closeItem = new ItemConfig(Material.BARRIER, "&cClose", List.of());
 
     @Override
     public Component title() {
@@ -39,14 +44,14 @@ class LiteSkinHistoryConfig implements LiteSkinHistoryGui.Config {
     }
 
     @Override
-    public Component skull(String skin, Instant changedAt) {
-        return MINI_MESSAGE.deserialize(replace(skullName, skin, changedAt));
+    public Component skull(int count, String skin, Instant changedAt) {
+        return MINI_MESSAGE.deserialize(replace(skullName, count, skin, changedAt));
     }
 
     @Override
-    public List<Component> skullLore(String skin, Instant changedAt) {
+    public List<Component> skullLore(int count, String skin, Instant changedAt) {
         return skullLore.stream()
-            .map(lore -> MINI_MESSAGE.deserialize(replace(lore, skin, changedAt)))
+            .map(lore -> MINI_MESSAGE.deserialize(replace(lore,  count, skin, changedAt)))
             .toList();
     }
 
@@ -66,6 +71,11 @@ class LiteSkinHistoryConfig implements LiteSkinHistoryGui.Config {
     }
 
     @Override
+    public GuiItem closeItem(GuiAction<InventoryClickEvent> action) {
+        return closeItem.create(action);
+    }
+
+    @Override
     public Component skullSelfName(String skin) {
         return MINI_MESSAGE.deserialize(skullSelfName.replace("{skin}", skin));
     }
@@ -77,10 +87,15 @@ class LiteSkinHistoryConfig implements LiteSkinHistoryGui.Config {
             .toList();
     }
 
-    private String replace(String text, String skin, Instant changedAt) {
+    private String replace(String text, int count, String skin, Instant changedAt) {
+        DateTimeFormatter formatter = DateTimeFormatter
+            .ofPattern(datePattern, Locale.ROOT)
+            .withZone(ZoneOffset.UTC);
+
         return text
             .replace("{skin}", skin)
-            .replace("{changedAt}", changedAt.toString());
+            .replace("{count}", String.valueOf(count))
+            .replace("{changedAt}", formatter.format(changedAt));
     }
 
     @Contextual
