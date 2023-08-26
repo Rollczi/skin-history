@@ -19,7 +19,6 @@ dependencies {
     testImplementation("org.testcontainers:mysql:1.18.1")
 }
 
-
 sourceSets.configureEach {
     kotlin.srcDir("$buildDir/generated/ksp/$name/kotlin/")
 }

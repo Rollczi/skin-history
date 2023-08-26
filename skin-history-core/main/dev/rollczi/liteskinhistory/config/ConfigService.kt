@@ -12,11 +12,11 @@ class ConfigService(private val dataFolder: File) {
         .withMemberResolver(Visibility.PACKAGE_PRIVATE)
         .build()
 
-    private val configs: Map<Class<*>, Any> = HashMap()
+    private val configs: MutableMap<Class<*>, Any> = HashMap()
 
     fun reloadAll() {
         for (config in configs.values) {
-            load(config, config.javaClass.resource())
+            reload(config, config.javaClass.resource())
         }
     }
 
@@ -24,16 +24,16 @@ class ConfigService(private val dataFolder: File) {
         val resource = clazz.resource()
         val config = cdn.load(resource, clazz).orThrow { cause: CdnException -> RuntimeException(cause) }
 
-        save(config, resource)
-
+        this.configs[clazz] = config
+        this.save(config, resource)
         return config
     }
 
-    fun <CONFIG : Any> save(config: CONFIG, resource: Resource) {
+    private fun <CONFIG : Any> save(config: CONFIG, resource: Resource) {
         cdn.render(config, resource).orThrow { cause: CdnException -> RuntimeException(cause) }
     }
 
-    private fun <CONFIG : Any> load(config: CONFIG, resource: Resource): CONFIG {
+    private fun <CONFIG : Any> reload(config: CONFIG, resource: Resource): CONFIG {
         return cdn.load(resource, config).orThrow { cause: CdnException -> RuntimeException(cause) }
     }
 
