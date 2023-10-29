@@ -1,10 +1,13 @@
 package dev.rollczi.liteskinhistory.database
 
 import com.dzikoysk.sqiffy.*
+import com.dzikoysk.sqiffy.changelog.SqiffyMetadataTable
 import com.dzikoysk.sqiffy.shared.createHikariDataSource
 import org.slf4j.event.Level
 
 object SqiffyFactory {
+
+    val METADATA_TABLE = SqiffyMetadataTable("lite_skin_history_metadata");
 
     fun createSqiffy(sqiffyConfig: SqiffyConfig): SqiffyDatabase {
         return Sqiffy.createDatabase(
