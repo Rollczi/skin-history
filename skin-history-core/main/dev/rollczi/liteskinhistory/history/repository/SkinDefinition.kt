@@ -6,7 +6,7 @@ import dev.rollczi.liteskinhistory.LiteSkinHistoryVersion
 @Definition([
     DefinitionVersion(
         version = LiteSkinHistoryVersion.V_0_1_0,
-        name = "skin",
+        name = "lsk_skin",
         properties = [
             Property(name = "id", type = DataType.SERIAL),
             Property(name = "name", type = DataType.VARCHAR, details = "16"),

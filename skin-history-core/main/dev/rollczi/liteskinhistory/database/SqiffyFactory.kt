@@ -7,7 +7,7 @@ import org.slf4j.event.Level
 
 object SqiffyFactory {
 
-    val METADATA_TABLE = SqiffyMetadataTable("lite_skin_history_metadata");
+    val METADATA_TABLE = SqiffyMetadataTable("lsk_metadata");
 
     fun createSqiffy(sqiffyConfig: SqiffyConfig): SqiffyDatabase {
         return Sqiffy.createDatabase(
