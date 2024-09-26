@@ -10,7 +10,7 @@ dependencies {
     api(project(":skin-history-core"))
     compileOnly("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
     annotationProcessor("com.velocitypowered:velocity-api:3.2.0-SNAPSHOT")
-    compileOnly("net.skinsrestorer:skinsrestorer-api:14.2.10")
+    compileOnly("net.skinsrestorer:skinsrestorer-api:15.4.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
 
 }
