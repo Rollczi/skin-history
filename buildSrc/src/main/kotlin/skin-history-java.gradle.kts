@@ -1,6 +1,3 @@
-import gradle.kotlin.dsl.accessors._d135a9d1b0cd444ab2257975278a515f.implementation
-import gradle.kotlin.dsl.accessors._d135a9d1b0cd444ab2257975278a515f.kotlin
-
 plugins {
     `java-library`
     kotlin("jvm")
@@ -12,15 +9,15 @@ dependencies {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 
 project.version = "1.0.0"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 sourceSets {
