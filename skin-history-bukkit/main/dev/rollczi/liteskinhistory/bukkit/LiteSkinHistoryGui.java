@@ -129,7 +129,6 @@ class LiteSkinHistoryGui {
         // Close button
         gui.setItem(6, 9, config.closeItem(event -> {
             player.closeInventory();
-            server.dispatchCommand(player, "profil");
         }));
 
         return gui;
