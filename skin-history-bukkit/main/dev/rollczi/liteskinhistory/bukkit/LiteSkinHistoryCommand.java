@@ -7,7 +7,7 @@ import dev.rollczi.litecommands.platform.LiteSender;
 import dev.rollczi.liteskinhistory.LiteSkinHistory;
 import org.bukkit.entity.Player;
 
-@Route(name = "skin-history")
+@Route(name = "skiny")
 class LiteSkinHistoryCommand {
 
     private final LiteSkinHistoryGui historyGui;
