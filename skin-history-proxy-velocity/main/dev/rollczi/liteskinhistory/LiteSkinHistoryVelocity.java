@@ -8,17 +8,18 @@ import com.velocitypowered.api.plugin.Dependency;
 import com.velocitypowered.api.plugin.Plugin;
 import com.velocitypowered.api.plugin.annotation.DataDirectory;
 import com.velocitypowered.api.proxy.Player;
+import com.velocitypowered.api.proxy.ProxyServer;
 import dev.rollczi.liteskinhistory.history.HistoryService;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 import net.skinsrestorer.api.SkinsRestorer;
 import net.skinsrestorer.api.SkinsRestorerProvider;
 import net.skinsrestorer.api.event.SkinApplyEvent;
 
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import net.skinsrestorer.api.exception.DataRequestException;
 import net.skinsrestorer.api.property.SkinIdentifier;
 import net.skinsrestorer.api.property.SkinProperty;
@@ -28,15 +29,17 @@ import net.skinsrestorer.api.property.SkinProperty;
 })
 public class LiteSkinHistoryVelocity {
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(8);
+    private final Logger logger = Logger.getLogger("LiteSkinHistory");
     private final Path dataDirectory;
+    private final ProxyServer proxyServer;
 
     private SkinsRestorer skinsRestorerAPI;
     private LiteSkinHistory liteSkinHistory;
 
     @Inject
-    public LiteSkinHistoryVelocity(@DataDirectory Path dataDirectory) {
+    public LiteSkinHistoryVelocity(@DataDirectory Path dataDirectory, ProxyServer proxyServer) {
         this.dataDirectory = dataDirectory;
+        this.proxyServer = proxyServer;
     }
 
     @Subscribe
@@ -44,17 +47,19 @@ public class LiteSkinHistoryVelocity {
         this.liteSkinHistory = new LiteSkinHistory(dataDirectory.toFile());
         this.skinsRestorerAPI = SkinsRestorerProvider.get();
         this.skinsRestorerAPI.getEventBus().subscribe(this, SkinApplyEvent.class, skinChange -> onSkinChange(skinChange));
+
+        logger.info("LiteSkinHistory has been initialized!");
     }
 
     @Subscribe
     public void onProxyShutdown(ProxyShutdownEvent event) {
         this.liteSkinHistory.shutdown();
-        this.executorService.shutdown();
     }
 
     @Subscribe
     public void onSkinChange(SkinApplyEvent event) {
-        executorService.submit(() -> {
+
+        proxyServer.getScheduler().buildTask(this, () -> {
             try {
                 HistoryService historyService = this.liteSkinHistory.getHistoryService();
                 SkinProperty property = event.getProperty();
@@ -66,15 +71,20 @@ public class LiteSkinHistoryVelocity {
                 Optional<SkinIdentifier> skinId = skinsRestorerAPI.getPlayerStorage().getSkinIdForPlayer(uniqueId, username);
 
                 if (skinId.isEmpty()) {
+                    logger.warning("Skin identifier is empty for player: " + username);
                     return;
                 }
 
-                historyService.createHistory(username, skinId.get().getIdentifier(), property.getValue(), Instant.now());
+                String skinName = SkinsRestorerReflect.getSkinName(skinId.get());
+
+                historyService.createHistory(username, skinName, property.getValue(), Instant.now());
             }
             catch (DataRequestException requestException) {
-                throw new RuntimeException(requestException);
+                logger.warning("An error occurred while trying to save skin history: " + requestException.getMessage());
+            } catch (InvocationTargetException | IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
-        });
+        }).schedule();
     }
 
 }
