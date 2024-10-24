@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     ksp("com.dzikoysk.sqiffy:sqiffy-symbol-processor:1.0.0-alpha.29")
-    implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.29")
+    implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.60")
     api("net.dzikoysk:cdn:1.14.4")
 
     implementation("com.zaxxer:HikariCP:5.0.1")
