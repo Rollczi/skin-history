@@ -14,7 +14,7 @@ dependencies {
     implementation("dev.rollczi:liteskullapi:1.3.0")
     implementation("dev.rollczi.litecommands:bukkit-adventure:2.8.8")
     implementation("dev.triumphteam:triumph-gui:3.1.10")
-    implementation("net.kyori:adventure-platform-bukkit:4.3.0")
+    implementation("net.kyori:adventure-platform-bukkit:4.3.4")
     implementation("net.kyori:adventure-text-minimessage:4.13.1")
 }
 
