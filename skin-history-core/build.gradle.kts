@@ -14,7 +14,7 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:5.0.1")
     implementation("mysql:mysql-connector-java:8.0.33")
-    implementation("org.slf4j:slf4j-simple:2.0.6")
+    implementation("org.slf4j:slf4j-simple:2.0.16")
 
     testImplementation("org.testcontainers:mysql:1.18.1")
 }
