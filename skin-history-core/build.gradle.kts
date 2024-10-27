@@ -12,7 +12,7 @@ dependencies {
     implementation("com.dzikoysk.sqiffy:sqiffy:1.0.0-alpha.29")
     api("net.dzikoysk:cdn:1.14.4")
 
-    implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("com.zaxxer:HikariCP:5.1.0")
     implementation("mysql:mysql-connector-java:8.0.33")
     implementation("org.slf4j:slf4j-simple:2.0.6")
 
