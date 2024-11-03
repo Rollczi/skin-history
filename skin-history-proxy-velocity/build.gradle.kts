@@ -3,7 +3,7 @@ plugins {
     `skin-history-java`
     `skin-history-repositories`
 
-    id("com.gradleup.shadow") version "8.3.2"
+    id("com.gradleup.shadow") version "8.3.5"
 }
 
 dependencies {
