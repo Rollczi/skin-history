@@ -2,7 +2,7 @@ plugins {
     `skin-history-java`
     `skin-history-repositories`
 
-    id("com.gradleup.shadow") version "8.3.2"
+    id("com.gradleup.shadow") version "8.3.5"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.3"
     id("xyz.jpenilla.run-paper") version "2.1.0"
 }
